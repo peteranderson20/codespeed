@@ -1,71 +1,55 @@
-# codespeed README
+# codespeed
 
-This is the README for your extension "codespeed". After writing up a brief description, we recommend including the following sections.
+**codespeed** is a Visual Studio Code extension that monitors Python files in real time and provides diagnostics directly inside the editor. The extension is designed as a foundation for future AI-powered performance analysis, code-quality checks, and automated optimization suggestions.
 
-## Features
+Whenever a Python file is opened, edited, or saved, codespeed analyzes the document and updates the VS Code Problems panel using a custom DiagnosticCollection. The goal is to create a seamless, always-on analysis workflow that reacts instantly as the developer writes code.
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+## What It Does
 
-For example if there is an image subfolder under your extension project workspace:
+- Automatically activates when any Python file is opened.
+- Remains active as long as a Python tab exists, even if the user switches to another file.
+- Monitors:
+  - Opening Python files  
+  - Editing Python files  
+  - Saving Python files  
+  - Python files already open at startup
+- Publishes diagnostics through VS Code’s Problems panel and squiggles.
+- Includes a fully automated test suite that validates:
+  - Extension activation
+  - Python-only file monitoring
+  - Event handling for open/change/save events
+  - Correct diagnostic registration
 
-\!\[feature X\]\(images/feature-x.png\)
+## Why It Exists
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+Existing AI coding tools often take a reactive, on-demand approach—running only when the user requests it. codespeed is designed for the opposite philosophy: continuous feedback. Instead of waiting for the user to click “Analyze,” the extension analyzes code automatically and updates the editor as the user types.
+
+This architecture prepares the extension for upcoming AI-driven features such as:
+
+- Real-time performance bottleneck detection  
+- Code smell detection  
+- Automatic suggestions for optimization  
+- AI-guided refactoring tools  
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+- Node.js and npm  
+- VS Code extension development environment  
+- No external API dependencies yet (AI features will be optional and modular)
 
-## Extension Settings
+## Current Limitations
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+- Diagnostics are placeholders without real analysis logic.
+- No throttling for extremely rapid edits.
+- Multi-root workspace behavior needs more testing.
+- Future features will require additional configuration and performance tuning.
 
-For example:
+## Release History
 
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+**0.0.1** — Initial extension structure, Python file monitoring, diagnostic integration  
+**0.0.2** — Added automated tests for activation and event handling  
+**0.1.0** (planned) — Implement first real analysis rule and improved diagnostics  
 
 ---
 
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+codespeed is designed to grow into an intelligent performance-and-quality tool built directly into the editor. This version establishes the tested, stable foundation on which the AI components will be built.
