@@ -1,21 +1,39 @@
 import * as vscode from 'vscode';
+import { analyzePython, configureAnalyzer, Finding, FindingSeverity } from './analyzer';
 
-export interface Finding {
-	message: string;
-	severity: vscode.DiagnosticSeverity;
-	range: vscode.Range;
+type ApiKeyProvider = () => PromiseLike<string | undefined>;
+
+let collection: vscode.DiagnosticCollection | undefined;
+let initialized = false;
+
+export function initDiagnostics(
+	context: vscode.ExtensionContext,
+	options: { getApiKey?: ApiKeyProvider; enableLLM?: boolean } = {},
+): void {
+	if (initialized) {
+		return;
+	}
+
+	collection = vscode.languages.createDiagnosticCollection('codespeed');
+	context.subscriptions.push(collection);
+	configureAnalyzer({ getApiKey: options.getApiKey, enableLLM: options.enableLLM });
+	initialized = true;
 }
 
-const collection = vscode.languages.createDiagnosticCollection('codespeed');
+export async function analyzeAndPublish(uri: vscode.Uri, text: string, reason: string): Promise<void> {
+	if (!collection) {
+		return;
+	}
 
-export function publishDiagnostics(uri: vscode.Uri, findings: Finding[]): void {
+	const findings = await analyzePython(uri.toString(true), text);
 	const diagnostics = findings.map((finding) => {
 		const diagnostic = new vscode.Diagnostic(
-			finding.range,
-			finding.message,
-			finding.severity,
+			toRange(finding),
+			annotateMessage(finding, reason),
+			mapSeverity(finding.severity),
 		);
 		diagnostic.source = 'codespeed';
+		diagnostic.code = finding.ruleId;
 		return diagnostic;
 	});
 
@@ -23,9 +41,35 @@ export function publishDiagnostics(uri: vscode.Uri, findings: Finding[]): void {
 }
 
 export function clearDiagnostics(uri: vscode.Uri): void {
-	collection.delete(uri);
+	if (!collection) {
+		return;
+	}
+
+	collection.set(uri, []);
 }
 
-export function disposeDiagnostics(): void {
-	collection.dispose();
+function mapSeverity(severity: FindingSeverity): vscode.DiagnosticSeverity {
+	switch (severity) {
+		case FindingSeverity.Error:
+			return vscode.DiagnosticSeverity.Error;
+		case FindingSeverity.Warning:
+			return vscode.DiagnosticSeverity.Warning;
+		case FindingSeverity.Info:
+			return vscode.DiagnosticSeverity.Information;
+		case FindingSeverity.Hint:
+		default:
+			return vscode.DiagnosticSeverity.Hint;
+	}
+}
+
+function toRange(finding: Finding): vscode.Range {
+	return new vscode.Range(
+		new vscode.Position(finding.range.startLine, finding.range.startChar),
+		new vscode.Position(finding.range.endLine, finding.range.endChar),
+	);
+}
+
+function annotateMessage(finding: Finding, reason: string): string {
+	const suffix = finding.needsContext ? ' (review context)' : '';
+	return `[${finding.ruleId}] ${finding.message}${suffix} [${reason}]`;
 }

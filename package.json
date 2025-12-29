@@ -10,10 +10,27 @@
     "Other"
   ],
   "activationEvents": [
-    "onLanguage:python"
+    "onLanguage:python",
+    "onCommand:codespeed.setOpenAIKey",
+    "onCommand:codespeed.clearOpenAIKey"
   ],
   "main": "./dist/extension.js",
-  "contributes": {},
+  "contributes": {
+    "commands": [
+      {
+        "command": "codespeed.helloWorld",
+        "title": "Hello World"
+      },
+      {
+        "command": "codespeed.setOpenAIKey",
+        "title": "Codespeed: Set OpenAI API Key"
+      },
+      {
+        "command": "codespeed.clearOpenAIKey",
+        "title": "Codespeed: Clear OpenAI API Key"
+      }
+    ]
+  },
   "scripts": {
     "vscode:prepublish": "npm run package",
     "compile": "npm run check-types && npm run lint && node esbuild.js",
